@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+	x:Class="Vamdrup_rundt.AppShell"
+	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:views="clr-namespace:Vamdrup_rundt.Views"
+	xmlns:local="clr-namespace:Vamdrup_rundt">
+
+	<ShellContent
+		Shell.NavBarIsVisible="true"
+		Title="Main"
+		Icon="iconblank.png"
+		ContentTemplate="{DataTemplate views:MainPage}"
+		Route="MainPage" />
+	<ShellContent
+		Shell.NavBarIsVisible="true"
+		Title="Signup"
+		Icon="iconblank.png"
+		ContentTemplate="{DataTemplate views:SignupPage}"
+		Route="SignupPage" />
+	<ShellContent
+		Shell.NavBarIsVisible="true"
+		Title="Loginn"
+		Icon="iconblank.png"
+		ContentTemplate="{DataTemplate views:LoginnPage}"
+		Route="LoginnPage" />
+	<ShellContent
+		Shell.NavBarIsVisible="true"
+		Title="Progress"
+		Icon="iconblank.png"
+		ContentTemplate="{DataTemplate views:ProgressPage}"
+		Route="ProgressPage" />
+	<ShellContent
+		Shell.NavBarIsVisible="true"
+		Title="Blank3"
+		Icon="iconblank.png"
+		ContentTemplate="{DataTemplate views:Blank3Page}"
+		Route="Blank3Page" />
+</Shell>
