@@ -9,6 +9,6 @@ namespace Vamdrup_rundt.Models
     public class UserModel
     {
         public string Email { get; set; }
-        public string Paswword { get; set; }
+        public string Password { get; set; }
     }
 }

@@ -9,10 +9,14 @@ public partial class LoginnViewModel : BaseViewModel
     private string email;
     [ObservableProperty]
     private string password;
+    [ObservableProperty]
+    private string isChecked;
+
     private readonly UserService _userService;
     public LoginnViewModel(UserService userService)
     {
         _userService = userService;
+        LogInAutomatic();
     }
 
 
@@ -22,14 +26,18 @@ public partial class LoginnViewModel : BaseViewModel
         var user = new UserModel
         {
             Email = Email,
-            Paswword = Password
+            Password = Password
         };
-        Debug.WriteLine(user.Email);
-        Debug.WriteLine(user.Paswword);
+       
         bool isCorrectCredentials = await _userService.LogUserInAsync(user);
         if (isCorrectCredentials)
         {
-            Debug.WriteLine("Correct info");
+            if (IsChecked != null)
+            {
+                await SecureStorage.SetAsync("email", Email);
+                await SecureStorage.SetAsync("password", Password);
+            }
+            await GoToMainPage();
 
         }
         else
@@ -37,5 +45,33 @@ public partial class LoginnViewModel : BaseViewModel
             Debug.WriteLine("Not correct information");
         }
 
+    }
+
+    private async Task LogInAutomatic()
+    {
+        string? email = await SecureStorage.GetAsync("email");
+        string? password = await SecureStorage.GetAsync("password");
+        if (email != null && password != null)
+        {
+
+            var user = new UserModel
+            {
+                Email = email,
+                Password = password
+            };
+
+            bool isCorrectCredentials = await _userService.LogUserInAsync(user);
+            if (isCorrectCredentials)
+            {
+                
+                await GoToMainPage();
+                
+                
+            }
+        }
+    }
+    public async Task GoToMainPage()
+    {
+        await Shell.Current.GoToAsync("///" + nameof(MainPage));
     }
 }

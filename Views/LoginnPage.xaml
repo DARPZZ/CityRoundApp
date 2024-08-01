@@ -57,7 +57,7 @@
 
                 <StackLayout Margin="0,10,0,0" Padding="0">
                     <StackLayout Orientation="Horizontal">
-                        <CheckBox  Margin="10,0,0,0" />
+                        <CheckBox  Margin="10,0,0,0" IsChecked="{Binding IsChecked, Mode=TwoWay}" />
                         <Label Text="Remember me" TextColor="DarkGray" FontSize="Small" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
                     </StackLayout>
                 </StackLayout>
