@@ -3,20 +3,40 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Vamdrup_rundt.ViewModels"
              x:Class="Vamdrup_rundt.Views.MainPage"
+             xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
 
              x:DataType="vm:MainViewModel">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <StackLayout Grid.Row="0" HorizontalOptions="Center">
-            <Label Text="Welcome" FontSize="Large"/>
+            <Label HorizontalOptions="Center" Text="Welcome" FontSize="Large"/>
+            <Label Text="You can move around the map with 1 finger"/>
+            <Entry Text="{Binding StreetsText}"  IsReadOnly="True"/>
+
          
         </StackLayout>
+        
+        <StackLayout Grid.Row="1" HorizontalOptions="Center">
+            
+            <maps:Map x:Name="myMap" IsShowingUser="True">
+              
+            </maps:Map>
+        </StackLayout>
 
-        <Button Grid.Row="2" Margin="0,0,0,50" HeightRequest="60" WidthRequest="250" Text="Start trip" HorizontalOptions="Center"/>
+
+        <StackLayout Grid.Row="2">
+            <Label Text="lattiude"/>
+        <Entry Text="{Binding Lat}" IsReadOnly="True"/>
+        <Label Text="longitude"/>
+        <Entry Text="{Binding Longg}" IsReadOnly="True"/>
+        <Label Text="Current street"/>
+        <Entry Text="{Binding Ct}" IsReadOnly="True"/>
+            <Button Command="{Binding SingInClickedCommand}"  Margin="0,0,0,50" HeightRequest="60" WidthRequest="250" Text="Start trip" HorizontalOptions="Center"/>
+        </StackLayout>
     </Grid>
 </ContentPage>
