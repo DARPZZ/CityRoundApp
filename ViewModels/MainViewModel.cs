@@ -12,7 +12,7 @@ namespace Vamdrup_rundt.ViewModels
         public string PinLabel { get; set; }
         public string Address { get; set; }
         public Location MyLocation { get; set; }
-
+        private bool IsTripActive;
         [ObservableProperty]
         public string test;
         [ObservableProperty]
@@ -21,21 +21,26 @@ namespace Vamdrup_rundt.ViewModels
         public double longg;
         [ObservableProperty]
         public double lat;
+        [ObservableProperty]
+        private string startStopTripText;
 
         [ObservableProperty]
         public string streetsText;
 
-        private readonly LocationService locationService;
+        private readonly LocationService locationService = new LocationService();
         private readonly HashSet<string> streetNames;
         private List<Pin> currentPins;
-
+        
         public MainViewModel()
         {
             locationService = new LocationService();
             streetNames = new HashSet<string>();
+            StartStopTripText = "Start";
+            IsTripActive = false;
             currentPins = new List<Pin>();
-            locationService.OnStartListening();
+          
             locationService.LocationUpdated += OnLocationUpdated;
+
 
         }
 
@@ -52,9 +57,13 @@ namespace Vamdrup_rundt.ViewModels
         {
             foreach (var item in locationService.currentLocation)
             {
-                streetNames.Add(item.FeatureName);
+                if(item.FeatureName != null)
+                {
+                    streetNames.Add(item.FeatureName);
 
-                StreetsText = string.Join(", ", streetNames);
+                    StreetsText = string.Join(", ", streetNames);
+                }
+               
             }
         }
 
@@ -67,23 +76,45 @@ namespace Vamdrup_rundt.ViewModels
         }
 
         [RelayCommand]
-        private async Task OnSingInClicked()
+        private async Task OnStartStopTripClicked()
         {
-            // Implementation for sign in clicked
+            if (IsTripActive)
+            {
+               locationService.OnStopListening();
+               IsTripActive= false;
+               StartStopTripText = "Start";
+            }
+            else
+            {
+                IsTripActive = true;
+                StartStopTripText = "Stop";
+                locationService.OnStartListening();
+            }
         }
 
 
         private void PublishPinsUpdate()
         {
-            Count++;
-            var pins = streetNames.Select(street => new Pin
+            try
             {
-                Label = street,
-                Type = PinType.Place,
-                Location = new Location(locationService.Latitude, locationService.Longitude)
-            }).ToList();
+                Count++;
 
-            EventAggregator.Instance.Publish(new MapPinsUpdatedEvent { Pins = pins });
+                var pins = streetNames.Select(street => new Pin
+                {
+                    Label = street,
+                    Type = PinType.Place,
+                    Location = new Location(locationService.Latitude, locationService.Longitude)
+                }).ToList();
+
+
+                EventAggregator.Instance.Publish(new MapPinsUpdatedEvent { Pins = pins });
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("No street name found");
+            }
         }
+     
     }
 }

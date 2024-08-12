@@ -36,7 +36,15 @@
         <Entry Text="{Binding Longg}" IsReadOnly="True"/>
         <Label Text="Current street"/>
         <Entry Text="{Binding Ct}" IsReadOnly="True"/>
-            <Button Command="{Binding SingInClickedCommand}"  Margin="0,0,0,50" HeightRequest="60" WidthRequest="250" Text="Start trip" HorizontalOptions="Center"/>
+            <Button 
+                Command="{Binding StartStopTripClickedCommand}" 
+                Margin="0,0,0,50"
+                HeightRequest="60"
+                WidthRequest="250"
+                Text="{Binding StartStopTripText}"
+                HorizontalOptions="Center">
+                
+            </Button>
         </StackLayout>
     </Grid>
 </ContentPage>

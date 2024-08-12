@@ -59,7 +59,7 @@ namespace Vamdrup_rundt.Services
         {
             try
             {
-                Debug.WriteLine("lat"+latitude + "Long "+ longitude  + "    ko");
+                
                 var placemarks = await Geocoding.Default.GetPlacemarksAsync(latitude, longitude);
                 var placemark = placemarks?.FirstOrDefault();
 
@@ -73,8 +73,7 @@ namespace Vamdrup_rundt.Services
 
                     currentLocation.Add(locationModel);
                     LocationUpdated?.Invoke(this, EventArgs.Empty);
-                    
-                    // Return a formatted string or use another way to return the data
+                  
                     return $"{placemark.Locality}";
                 }
 
@@ -93,7 +92,7 @@ namespace Vamdrup_rundt.Services
             try
             {
                 Geolocation.LocationChanged += Geolocation_LocationChanged;
-                var request = new GeolocationListeningRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(10));
+                var request = new GeolocationListeningRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(5));
                 var success = await Geolocation.StartListeningForegroundAsync(request);
 
                 if (success)
@@ -123,5 +122,20 @@ namespace Vamdrup_rundt.Services
             Debug.WriteLine($"Location changed: Latitude={Latitude}, Longitude={Longitude}");
             await GetGeocodeReverseData(location.Latitude, location.Longitude);
         }
+       public void OnStopListening()
+       {
+            try
+            {
+                Geolocation.LocationChanged -= Geolocation_LocationChanged;
+                Geolocation.StopListeningForeground();
+                string status = "Stopped listening for foreground location updates";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Failed the stop listening");
+            }
+       }
+
     }
+
 }
