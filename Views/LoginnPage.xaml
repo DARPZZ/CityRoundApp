@@ -65,7 +65,7 @@
                 <Button Command="{Binding SingInClickedCommand}" Text="SIGN IN" BackgroundColor="LightGreen" TextColor="White" FontAttributes="Bold" HeightRequest="50" CornerRadius="30" WidthRequest="200" Margin="0,15,0,0"/>
                 <Label Text="New user?" TextColor="DarkGray" FontSize="Medium" HorizontalTextAlignment="Center" Margin="0,20,0,0"/>
                 <StackLayout>
-                    <Button  Text="SIGN UP" BackgroundColor="LightGreen" TextColor="White" FontAttributes="Bold" HeightRequest="50" CornerRadius="30" WidthRequest="200" FontSize="Small"/>
+                    <Button Command="{Binding SignUpClickedCommand}"  Text="SIGN UP" BackgroundColor="LightGreen" TextColor="White" FontAttributes="Bold" HeightRequest="50" CornerRadius="30" WidthRequest="200" FontSize="Small"/>
                 </StackLayout>
 
             </StackLayout>

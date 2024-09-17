@@ -19,6 +19,11 @@ public partial class LoginnViewModel : BaseViewModel
         LogInAutomatic();
     }
 
+    [RelayCommand]
+    private async Task OnSignUpClicked()
+    {
+        await Shell.Current.GoToAsync("///" + nameof(SignupPage));
+    }
 
     [RelayCommand]
     private async Task OnSingInClicked()
@@ -36,6 +41,15 @@ public partial class LoginnViewModel : BaseViewModel
             {
                 await SecureStorage.SetAsync("email", Email);
                 await SecureStorage.SetAsync("password", Password);
+            }
+
+            try
+            {
+                await SecureStorage.Default.SetAsync("email", user.Email);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"{ex.Message}");
             }
             await GoToMainPage();
 
@@ -63,10 +77,17 @@ public partial class LoginnViewModel : BaseViewModel
             bool isCorrectCredentials = await _userService.LogUserInAsync(user);
             if (isCorrectCredentials)
             {
-                
+                try
+                {
+                    await SecureStorage.Default.SetAsync("email", user.Email);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{ex.Message}");
+                }
+
                 await GoToMainPage();
-                
-                
+               
             }
         }
     }

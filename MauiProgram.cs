@@ -1,4 +1,5 @@
-﻿using Vamdrup_rundt.Services;
+﻿using CommunityToolkit.Maui;
+using Vamdrup_rundt.Services;
 
 namespace Vamdrup_rundt;
 
@@ -10,6 +11,7 @@ public static class MauiProgram
 		builder
 			.UseMauiApp<App>()
 			.UseMauiMaps()
+            .UseMauiCommunityToolkit()
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -24,6 +26,8 @@ public static class MauiProgram
 
 		builder.Services.AddSingleton<SignupPage>();
 
+		builder.Services.AddSingleton<SettingsViewModel>();
+		builder.Services.AddSingleton<SettingsPage>();
 		builder.Services.AddSingleton<LoginnViewModel>();
 
 		builder.Services.AddSingleton<LoginnPage>();
@@ -36,6 +40,7 @@ public static class MauiProgram
 
 		builder.Services.AddSingleton<Blank3Page>();
         builder.Services.AddSingleton<UserService>();
+		builder.Services.AddSingleton<VisitedStreetsDataService>();
 
         return builder.Build();
 	}

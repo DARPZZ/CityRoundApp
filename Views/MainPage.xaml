@@ -8,20 +8,18 @@
              x:DataType="vm:MainViewModel">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="400"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <StackLayout Grid.Row="0" HorizontalOptions="Center">
             <Label HorizontalOptions="Center" Text="Welcome" FontSize="Large"/>
             <Label Text="You can move around the map with 1 finger"/>
-            <Entry Text="{Binding StreetsText}"  IsReadOnly="True"/>
 
-         
         </StackLayout>
         
-        <StackLayout Grid.Row="1" HorizontalOptions="Center">
+        <StackLayout Padding="0,50,0,0" Grid.Row="1" HorizontalOptions="Center">
             
             <maps:Map x:Name="myMap" IsShowingUser="True">
               
@@ -29,16 +27,10 @@
         </StackLayout>
 
 
-        <StackLayout Grid.Row="2">
-            <Label Text="lattiude"/>
-        <Entry Text="{Binding Lat}" IsReadOnly="True"/>
-        <Label Text="longitude"/>
-        <Entry Text="{Binding Longg}" IsReadOnly="True"/>
-        <Label Text="Current street"/>
-        <Entry Text="{Binding Ct}" IsReadOnly="True"/>
+        <StackLayout Padding="0,70,0,0" Grid.Row="2">
             <Button 
                 Command="{Binding StartStopTripClickedCommand}" 
-                Margin="0,0,0,50"
+                Padding="5,5,5,5"
                 HeightRequest="60"
                 WidthRequest="250"
                 Text="{Binding StartStopTripText}"

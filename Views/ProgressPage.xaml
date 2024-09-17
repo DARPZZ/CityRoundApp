@@ -1,8 +1,28 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-			 xmlns:vm="clr-namespace:Vamdrup_rundt.ViewModels"
-			 x:Class="Vamdrup_rundt.Views.ProgressPage"
-			 x:DataType="vm:ProgressViewModel">
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Vamdrup_rundt.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="Vamdrup_rundt.Views.ProgressPage"
+             x:DataType="vm:ProgressViewModel">
+            <ContentPage.Resources>
+                <ResourceDictionary>
+                    <toolkit:SelectedItemEventArgsConverter x:Key="SelectedItemEventArgsConverter" />
+                </ResourceDictionary>
+            </ContentPage.Resources>
 
+    <StackLayout Padding="5,5,5,5" HorizontalOptions="Center">
+        <Label Margin="0,20,0,0" FontSize="Title" Text="Here you can see the progress"></Label>
+        <StackLayout Margin="20">
+            <Entry Text="{Binding SearchWord}" Placeholder="Search streets"></Entry>
+        </StackLayout>
+        <ListView ItemsSource="{Binding Streets}"  >
+        <ListView.Behaviors>
+            <toolkit:EventToCommandBehavior
+            EventName="ItemSelected"
+            Command="{Binding ItemSelectedCommand}"
+            EventArgsConverter="{StaticResource SelectedItemEventArgsConverter}" />
+        </ListView.Behaviors>
+
+        </ListView>
+    </StackLayout>
 </ContentPage>

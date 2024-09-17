@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
+using Microsoft.Maui.ApplicationModel.Communication;
 using Microsoft.Maui.Controls.Maps;
 using Microsoft.Maui.Maps;
+using Vamdrup_rundt.Models;
 using Vamdrup_rundt.Services;
 
 namespace Vamdrup_rundt.ViewModels
@@ -9,6 +11,7 @@ namespace Vamdrup_rundt.ViewModels
     public partial class MainViewModel : BaseViewModel
     {
         private int Count = 0;
+        string emailLogin;
         public string PinLabel { get; set; }
         public string Address { get; set; }
         public Location MyLocation { get; set; }
@@ -28,13 +31,15 @@ namespace Vamdrup_rundt.ViewModels
         public string streetsText;
 
         private readonly LocationService locationService = new LocationService();
-        private readonly HashSet<string> streetNames;
+        VisitedStreetsDataService visitedStreetsDataService = new VisitedStreetsDataService();
+        List<VisitedStreetsModel> streets = new List<VisitedStreetsModel>();
         private List<Pin> currentPins;
         
         public MainViewModel()
         {
+            
+            GetUserEmailFromLogin();
             locationService = new LocationService();
-            streetNames = new HashSet<string>();
             StartStopTripText = "Start";
             IsTripActive = false;
             currentPins = new List<Pin>();
@@ -43,6 +48,11 @@ namespace Vamdrup_rundt.ViewModels
 
 
         }
+        private async void GetUserEmailFromLogin()
+        {
+            emailLogin = await SecureStorage.Default.GetAsync("email");
+        }
+
 
         private async void OnLocationUpdated(object sender, EventArgs e)
         {
@@ -57,11 +67,15 @@ namespace Vamdrup_rundt.ViewModels
         {
             foreach (var item in locationService.currentLocation)
             {
+                var vs = new VisitedStreetsModel {
+                    StreetName = item.FeatureName,
+                    Postnummer = int.Parse(item.PostalCode),
+
+                };
+              
                 if(item.FeatureName != null)
                 {
-                    streetNames.Add(item.FeatureName);
-
-                    StreetsText = string.Join(", ", streetNames);
+                    streets.Add(vs);
                 }
                
             }
@@ -69,9 +83,9 @@ namespace Vamdrup_rundt.ViewModels
 
         public void Print()
         {
-            for (int i = 0; i < streetNames.Count; i++)
+            for (int i = 0; i < streets.Count; i++)
             {
-                Debug.WriteLine(streetNames.ToList()[i]);
+                Debug.WriteLine(streets.ToList()[i]);
             }
         }
 
@@ -80,9 +94,12 @@ namespace Vamdrup_rundt.ViewModels
         {
             if (IsTripActive)
             {
+
+               
                locationService.OnStopListening();
                IsTripActive= false;
                StartStopTripText = "Start";
+                publishstreetAsync();
             }
             else
             {
@@ -99,9 +116,9 @@ namespace Vamdrup_rundt.ViewModels
             {
                 Count++;
 
-                var pins = streetNames.Select(street => new Pin
+                var pins = streets.Select(street => new Pin
                 {
-                    Label = street,
+                    Label = street.StreetName,
                     Type = PinType.Place,
                     Location = new Location(locationService.Latitude, locationService.Longitude)
                 }).ToList();
@@ -115,6 +132,36 @@ namespace Vamdrup_rundt.ViewModels
                 Debug.WriteLine("No street name found");
             }
         }
+        public async Task publishstreetAsync()
+        {
+            try
+            {
+                foreach (var item in streets)
+                {
+                    var vsstreet = new VisitedStreetsModel
+                    {
+                        email = emailLogin,
+                        StreetName = item.StreetName,
+                        Postnummer = item.Postnummer,
+                    };
+                    bool isCorrectCredentials = await visitedStreetsDataService.PostVisitedStreet(vsstreet);
+                    if (isCorrectCredentials)
+                    {
+                        Debug.WriteLine("OK");
+                    }else
+                    {
+                        Debug.WriteLine("The street is already loaded in");
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+
      
     }
 }
