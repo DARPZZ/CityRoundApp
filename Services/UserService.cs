@@ -12,8 +12,9 @@ namespace Vamdrup_rundt.Services
 {
     public class UserService
     {
-        private readonly string baseString = "http://172.20.10.2:5299/api/userdata/";
-
+          //private readonly string baseString = "http://172.20.10.2:5299/api/userdata/";
+          //private readonly string baseString = "http://192.168.9.119:5299/api/userdata/";
+          private readonly string baseString = "http://srv589522.hstgr.cloud:5299/api/userdata/";
         public async Task<bool> LogUserInAsync(UserModel user)
         {
             var url = baseString + "login";

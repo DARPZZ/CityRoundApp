@@ -119,7 +119,7 @@ namespace Vamdrup_rundt.Services
             Longitude = location.Longitude;
             Latitude = location.Latitude;
   
-            Debug.WriteLine($"Location changed: Latitude={Latitude}, Longitude={Longitude}");
+
             await GetGeocodeReverseData(location.Latitude, location.Longitude);
         }
        public void OnStopListening()

@@ -10,7 +10,9 @@ namespace Vamdrup_rundt.Services
 {
     public class VisitedStreetsDataService
     {
-        private readonly string baseString = "http://172.20.10.2:5299/api/";
+        //private readonly string baseString = "http://172.20.10.2:5299/api/";
+        //private readonly string baseString = "http://192.168.9.119:5299/api/";
+        private readonly string baseString = "http://srv589522.hstgr.cloud:5299/api/";
         public async Task<bool> PostVisitedStreet(VisitedStreetsModel visitedStreetsModel)
         {
             var url = baseString + "VisitedStreet";
@@ -69,6 +71,36 @@ namespace Vamdrup_rundt.Services
                 Debug.WriteLine($"Exception: {ex.Message}");
                 return null;
                 
+            }
+        }
+        public async Task<List<VisitedStreetsModel>> GetVisitedStreetByID(string email, int PostNummer)
+        {
+            var url = baseString + "GetVisitedStreetByID?email=" + email + "&postnummer=" + PostNummer;
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    var response = await httpClient.GetAsync(url);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+                        var streets = JsonConvert.DeserializeObject<List<VisitedStreetsModel>>(jsonResponse);
+                        return streets;
+                    }
+                    else
+                    {
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        Debug.WriteLine($"Error: {errorContent}");
+                        return null;
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception: {ex.Message}");
+                return null;
+
             }
         }
 

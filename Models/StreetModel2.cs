@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace Vamdrup_rundt.Models
 {
-    public class StreetModel
+    public class StreetModel2
     {
-        public string by { get; set; }
-        public int postnummer { get; set; }
-
-
+        public int id { get; set; }
+        public string name { get; set; }
+        public int postNummer { get; set; }
     }
 }
