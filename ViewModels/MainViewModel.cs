@@ -60,26 +60,32 @@ namespace Vamdrup_rundt.ViewModels
             Lat = locationService.Latitude;
             
             ExtractStreetNames();
-            PublishPinsUpdate();
+            await PublishPinsUpdate();
         }
 
         public void ExtractStreetNames()
         {
             foreach (var item in locationService.currentLocation)
             {
-                var vs = new VisitedStreetsModel {
-                    StreetName = item.FeatureName,
-                    Postnummer = int.Parse(item.PostalCode),
-
-                };
-              
-                if(item.FeatureName != null)
+                if (item.FeatureName != null)
                 {
-                    streets.Add(vs);
+                    var vs = new VisitedStreetsModel
+                    {
+                        StreetName = item.FeatureName,
+                        Postnummer = int.Parse(item.PostalCode),
+                    };
+
+                    
+                    bool alreadyExists = streets.Any(s => s.StreetName == vs.StreetName && s.Postnummer == vs.Postnummer);
+
+                    if (!alreadyExists)
+                    {
+                        streets.Add(vs);
+                    }
                 }
-               
             }
         }
+
 
         public void Print()
         {
@@ -99,7 +105,7 @@ namespace Vamdrup_rundt.ViewModels
                locationService.OnStopListening();
                IsTripActive= false;
                StartStopTripText = "Start";
-                publishstreetAsync();
+               await publishstreetAsync();
             }
             else
             {
@@ -110,7 +116,7 @@ namespace Vamdrup_rundt.ViewModels
         }
 
 
-        private void PublishPinsUpdate()
+        private async Task PublishPinsUpdate()
         {
             try
             {

@@ -25,19 +25,33 @@ public partial class MainPage : ContentPage
     }
     private void OnMapPinsUpdated(MapPinsUpdatedEvent mapPinsUpdatedEvent)
     {
-        CreateMapSpan();
         foreach (var pin in mapPinsUpdatedEvent.Pins)
         {
-            myMap.Pins.Add(pin);
+          
+            var existingPin = myMap.Pins.FirstOrDefault(p =>
+                p.Location.Latitude == pin.Location.Latitude &&
+                p.Location.Longitude == pin.Location.Longitude);
+
+         
+            if (existingPin == null)
+            {
+                myMap.Pins.Add(pin);
+            }
+            else
+            {
+                
+                existingPin.Label = pin.Label;
+            }
         }
     }
+
     private async void  CreateMapSpan()
     {
         await _locationService.GetCurrentLocation();
         var latitude = _locationService.Latitude;
         var longitude = _locationService.Longitude;
         var location = new Location(latitude, longitude);
-        var mapSpan = new MapSpan(location, 0.004, 0.004);
+        var mapSpan = new MapSpan(location, 0.002, 0.002);
         myMap.MoveToRegion(mapSpan);
     }
    
