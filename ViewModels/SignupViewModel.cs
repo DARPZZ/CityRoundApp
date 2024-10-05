@@ -13,7 +13,7 @@ public partial class SignupViewModel : BaseViewModel
     public SignupViewModel()
     {
         userService = new UserService();
-
+       
     }
     [RelayCommand]
     private async Task OnSingUpClicked()
@@ -30,5 +30,10 @@ public partial class SignupViewModel : BaseViewModel
             Debug.WriteLine("Correct information");
             await Shell.Current.GoToAsync("///" + nameof(LoginnPage));
         }
+    }
+    [RelayCommand]
+    private async Task OnBackClicked()
+    {
+        await Shell.Current.GoToAsync("///" + nameof(LoginnPage));
     }
 }

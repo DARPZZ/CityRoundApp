@@ -60,6 +60,10 @@
                 <StackLayout Padding="0,35,0,0">
                     <Button Command="{Binding SingUpClickedCommand}"  Text="SIGN UP" BackgroundColor="LightGreen" TextColor="White" FontAttributes="Bold" HeightRequest="50" CornerRadius="30" WidthRequest="200" FontSize="Small"/>
                 </StackLayout>
+                
+                <StackLayout Padding="0,35,0,0">
+                    <Button Command="{Binding BackClickedCommand}"  Text="Back to login" BackgroundColor="LightGreen" TextColor="White" FontAttributes="Bold" HeightRequest="50" CornerRadius="30" WidthRequest="200" FontSize="Small"/>
+                </StackLayout>
 
             </StackLayout>
         </Grid>

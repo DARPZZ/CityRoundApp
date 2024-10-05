@@ -35,14 +35,8 @@
         </Tab>
     </TabBar>
 
-    <ShellContent
-        Route="SignupPage"
-        ContentTemplate="{DataTemplate views:SignupPage}" 
-        IsVisible="False"/>
-
-    <ShellContent
-        Route="LoginnPage"
-        ContentTemplate="{DataTemplate views:LoginnPage}" 
-        IsVisible="True"/>
+    <!-- Register the routes for Login and Signup pages without displaying them in the TabBar -->
+    <ShellContent Route="SignupPage" ContentTemplate="{DataTemplate views:SignupPage}" />
+    <ShellContent Route="LoginnPage" ContentTemplate="{DataTemplate views:LoginnPage}" />
 
 </Shell>
