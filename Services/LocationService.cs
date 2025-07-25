@@ -5,6 +5,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+#if ANDROID
+using Android.Content;
+#endif
+
+
 namespace Vamdrup_rundt.Services
 {
     public class LocationService
@@ -18,24 +23,33 @@ namespace Vamdrup_rundt.Services
         public HashSet<LocationModel> currentLocation { get; set; } = new HashSet<LocationModel>();
         public event EventHandler LocationUpdated;
 
+
+        public void HandleLocationUpdateFromPlatform(Location location)
+        {
+            if (location != null)
+            {
+                Longitude = location.Longitude;
+                Latitude = location.Latitude;
+                Debug.WriteLine($"Location update received from platform service: {Latitude}, {Longitude}");
+                
+                Task.Run(async () => await GetGeocodeReverseData(Latitude, Longitude));
+            }
+        }
+
         public async Task GetCurrentLocation()
         {
             Debug.WriteLine("Calling GetCurrentLocation");
             try
             {
                 _isCheckingLocation = true;
-
                 var request = new GeolocationRequest(GeolocationAccuracy.Best);
-
                 _cancelTokenSource = new CancellationTokenSource();
-
                 var location = await Geolocation.Default.GetLocationAsync(request, _cancelTokenSource.Token);
 
                 if (location != null)
                 {
                     Longitude = location.Longitude;
                     Latitude = location.Latitude;
-
                     Debug.WriteLine($"Location obtained: Longitude={Longitude}, Latitude={Latitude}");
                 }
             }
@@ -59,24 +73,27 @@ namespace Vamdrup_rundt.Services
         {
             try
             {
-                
                 var placemarks = await Geocoding.Default.GetPlacemarksAsync(latitude, longitude);
                 var placemark = placemarks?.FirstOrDefault();
 
                 if (placemark != null)
                 {
                     var locationModel = new LocationModel(
-                        placemark.PostalCode.ToString(),
+                        placemark.PostalCode?.ToString(),
                         placemark.CountryCode,
                         placemark.Thoroughfare
                     );
 
-                    currentLocation.Add(locationModel);
+                   
+                    lock (currentLocation)
+                    {
+                        currentLocation.Add(locationModel);
+                    }
                     LocationUpdated?.Invoke(this, EventArgs.Empty);
-                  
+                    Debug.WriteLine("✅ LocationUpdated event fired from service.");
+
                     return $"{placemark.Locality}";
                 }
-
                 return "No placemarks found.";
             }
             catch (Exception ex)
@@ -86,31 +103,47 @@ namespace Vamdrup_rundt.Services
             }
         }
 
-        public async void OnStartListening()
+        public void OnStartListening()
         {
-            Debug.WriteLine("Attempting to start listening for location updates");
-            try
+#if ANDROID
+             Debug.WriteLine("Requested to start Android Location Service.");
+            var context = Platform.AppContext;
+            var intent = new Intent(context, typeof(AndroidLocationService));
+            intent.SetAction(AndroidLocationService.ActionStart);
+            context.StartForegroundService(intent);
+            _isListening = true;
+           
+#else
+            // Original implementation for other platforms (e.g., iOS)
+            // You can keep your original async void method here if you prefer,
+            // but async Task is generally safer.
+            Task.Run(async () => 
             {
-                Geolocation.LocationChanged += Geolocation_LocationChanged;
-                var request = new GeolocationListeningRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(5));
-                var success = await Geolocation.StartListeningForegroundAsync(request);
-
-                if (success)
+                 Debug.WriteLine("Attempting to start listening for location updates");
+                try
                 {
-                    Debug.WriteLine("Listening for location updates started successfully.");
-                    _isListening = true;
+                    Geolocation.LocationChanged += Geolocation_LocationChanged;
+                    var request = new GeolocationListeningRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(5));
+                    var success = await Geolocation.StartListeningForegroundAsync(request);
+
+                    if (success)
+                    {
+                        Debug.WriteLine("Listening for location updates started successfully.");
+                        _isListening = true;
+                    }
+                    else
+                    {
+                        _isListening = false;
+                        Debug.WriteLine("Couldn't start listening for location updates.");
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
                     _isListening = false;
-                    Debug.WriteLine("Couldn't start listening for location updates.");
+                    Debug.WriteLine($"OnStartListening Exception: {ex}");
                 }
-            }
-            catch (Exception ex)
-            {
-                _isListening = false;
-                Debug.WriteLine($"OnStartListening Exception: {ex}");
-            }
+            });
+#endif
         }
 
         private async void Geolocation_LocationChanged(object sender, GeolocationLocationChangedEventArgs e)
@@ -118,24 +151,32 @@ namespace Vamdrup_rundt.Services
             var location = e.Location;
             Longitude = location.Longitude;
             Latitude = location.Latitude;
-  
-
             await GetGeocodeReverseData(location.Latitude, location.Longitude);
         }
-       public void OnStopListening()
-       {
+
+        public void OnStopListening()
+        {
+#if ANDROID
+            var context = Platform.AppContext;
+            var intent = new Intent(context, typeof(AndroidLocationService));
+            intent.SetAction(AndroidLocationService.ActionStop);
+            context.StartService(intent);
+            _isListening = false;
+            Debug.WriteLine("Requested to stop Android Location Service.");
+#else
+            // Original implementation for other platforms
             try
             {
                 Geolocation.LocationChanged -= Geolocation_LocationChanged;
                 Geolocation.StopListeningForeground();
-                string status = "Stopped listening for foreground location updates";
+                _isListening = false;
+                Debug.WriteLine("Stopped listening for foreground location updates");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Failed the stop listening");
+                Debug.WriteLine("Failed to stop listening: " + ex.Message);
             }
-       }
-
+#endif
+        }
     }
-
 }
