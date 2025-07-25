@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿    using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Microsoft.Maui.ApplicationModel.Communication;
 using Microsoft.Maui.Controls.Maps;
@@ -29,22 +29,21 @@ namespace Vamdrup_rundt.ViewModels
 
         [ObservableProperty]
         public string streetsText;
-
-        private readonly LocationService locationService = new LocationService();
+        LocationService locationService;
         VisitedStreetsDataService visitedStreetsDataService = new VisitedStreetsDataService();
         List<VisitedStreetsModel> streets = new List<VisitedStreetsModel>();
         private List<Pin> currentPins;
         
-        public MainViewModel()
+        public MainViewModel(LocationService locationService)
         {
             
             GetUserEmailFromLogin();
-            locationService = new LocationService();
             StartStopTripText = "Start";
             IsTripActive = false;
             currentPins = new List<Pin>();
-          
-            locationService.LocationUpdated += OnLocationUpdated;
+            this.locationService = locationService;
+            this.locationService.LocationUpdated -= OnLocationUpdated;
+            this.locationService.LocationUpdated += OnLocationUpdated;
 
 
         }
@@ -56,11 +55,17 @@ namespace Vamdrup_rundt.ViewModels
 
         private async void OnLocationUpdated(object sender, EventArgs e)
         {
-            Longg = locationService.Longitude;
-            Lat = locationService.Latitude;
-            
+            var longg = locationService.Longitude;
+            var lat = locationService.Latitude;
+
             ExtractStreetNames();
-            await PublishPinsUpdate();
+            Debug.WriteLine($"📍 OnLocationUpdated triggered: Lat={Lat}, Long={Longg}");
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                Longg = longg;
+                Lat = lat;
+                await PublishPinsUpdate();
+            });
         }
 
         public void ExtractStreetNames()
@@ -74,7 +79,7 @@ namespace Vamdrup_rundt.ViewModels
                         StreetName = item.FeatureName,
                         Postnummer = int.Parse(item.PostalCode),
                     };
-
+                    
                     
                     bool alreadyExists = streets.Any(s => s.StreetName == vs.StreetName && s.Postnummer == vs.Postnummer);
 
@@ -100,7 +105,6 @@ namespace Vamdrup_rundt.ViewModels
         {
             if (IsTripActive)
             {
-
                
                locationService.OnStopListening();
                IsTripActive= false;
@@ -150,6 +154,7 @@ namespace Vamdrup_rundt.ViewModels
                         StreetName = item.StreetName,
                         Postnummer = item.Postnummer,
                     };
+                    Debug.WriteLine(vsstreet.StreetName);
                     bool isCorrectCredentials = await visitedStreetsDataService.PostVisitedStreet(vsstreet);
                     if (isCorrectCredentials)
                     {

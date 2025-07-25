@@ -37,7 +37,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<ProgressPage>();
 
 		builder.Services.AddSingleton<Blank3ViewModel>();
-
+		builder.Services.AddSingleton<LocationService>();
 		builder.Services.AddSingleton<Blank3Page>();
         builder.Services.AddSingleton<UserService>();
 		builder.Services.AddSingleton<VisitedStreetsDataService>();
