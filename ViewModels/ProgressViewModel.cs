@@ -80,6 +80,7 @@ namespace Vamdrup_rundt.ViewModels
         private async Task ItemSelected(string item)
         {
             completedStreets.Clear();
+            allStreetsList.Clear();
             var spilttedItem = item.Split(" ");
             string postNummer = spilttedItem[3];
             int intPostnummer = int.Parse(spilttedItem[3]);
