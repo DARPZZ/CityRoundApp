@@ -19,7 +19,7 @@ namespace Vamdrup_rundt.Services
         private bool _isListening;
         public double Longitude { get; set; }
         public double Latitude { get; set; }
-
+        Haversine haversine = new Haversine();
         public HashSet<LocationModel> currentLocation { get; set; } = new HashSet<LocationModel>();
         public event EventHandler LocationUpdated;
 
@@ -69,36 +69,47 @@ namespace Vamdrup_rundt.Services
                 _cancelTokenSource.Cancel();
         }
 
-        public async Task<string> GetGeocodeReverseData(double latitude, double longitude)
+        private async Task<string> GetGeocodeReverseData(double lat, double lon)
         {
             try
             {
-                var placemarks = await Geocoding.Default.GetPlacemarksAsync(latitude, longitude);
+                var placemarks = await Geocoding.Default.GetPlacemarksAsync(lat, lon);
                 var placemark = placemarks?.FirstOrDefault();
 
-                if (placemark != null)
-                {
-                    var locationModel = new LocationModel(
-                        placemark.PostalCode?.ToString(),
-                        placemark.CountryCode,
-                        placemark.Thoroughfare
-                    );
+                if (placemark == null || placemark.Location == null)
+                    return "no data";
 
-                   
+                var returned = placemark.Location;
+
+                double distMeters = haversine.ReverseGeocodeSnapChecker(
+                    lat, lon,
+                    returned.Latitude, returned.Longitude
+                );
+                Debug.WriteLine(distMeters);
+                if (distMeters > 15)
+                    return "no data";
+
+                var locationModel = new LocationModel(
+                    placemark.PostalCode?.ToString(),
+                    placemark.CountryCode,
+                    placemark.Thoroughfare
+                );
+
+                if (locationModel.FeatureName != "no data")
+                {
                     lock (currentLocation)
                     {
                         currentLocation.Add(locationModel);
                     }
-                    LocationUpdated?.Invoke(this, EventArgs.Empty);
-                    Debug.WriteLine("✅ LocationUpdated event fired from service.");
 
-                    return $"{placemark.Locality}";
+                    LocationUpdated?.Invoke(this, EventArgs.Empty);
                 }
-                return "No placemarks found.";
+
+                return placemark.Thoroughfare ?? "unknown road";
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"GetGeocodeReverseData Exception: {ex.Message}");
+                Debug.WriteLine($"ReverseGeocodeWithHaversineAndNotify Exception: {ex.Message}");
                 return $"Error: {ex.Message}";
             }
         }
