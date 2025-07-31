@@ -7,7 +7,7 @@
     xmlns:local="clr-namespace:Vamdrup_rundt">
 
     <!-- Global ToolbarItem -->
- 
+    <ShellContent Route="LoginnPage" ContentTemplate="{DataTemplate views:LoginnPage}" />
     <!-- Bottom Tab Bar -->
     <TabBar>
         <Tab Title="Home" Route="MainPage">
@@ -37,6 +37,6 @@
 
     <!-- Register the routes for Login and Signup pages without displaying them in the TabBar -->
     <ShellContent Route="SignupPage" ContentTemplate="{DataTemplate views:SignupPage}" />
-    <ShellContent Route="LoginnPage" ContentTemplate="{DataTemplate views:LoginnPage}" />
+    
 
 </Shell>

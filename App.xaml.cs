@@ -6,7 +6,10 @@ public partial class App : Application
 	{
 		InitializeComponent();
 
-		MainPage = new AppShell();
-        Shell.Current.GoToAsync("///" + nameof(LoginnPage));
+        
+    }
+    protected override Window CreateWindow(IActivationState activationState)
+    {
+        return new Window(new AppShell());
     }
 }
