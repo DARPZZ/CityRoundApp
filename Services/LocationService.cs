@@ -125,7 +125,9 @@ namespace Vamdrup_rundt.Services
             _isListening = true;
            
 #else
-
+            // Original implementation for other platforms (e.g., iOS)
+            // You can keep your original async void method here if you prefer,
+            // but async Task is generally safer.
             Task.Run(async () => 
             {
                  Debug.WriteLine("Attempting to start listening for location updates");
@@ -173,6 +175,7 @@ namespace Vamdrup_rundt.Services
             _isListening = false;
             Debug.WriteLine("Requested to stop Android Location Service.");
 #else
+            // Original implementation for other platforms
             try
             {
                 Geolocation.LocationChanged -= Geolocation_LocationChanged;
