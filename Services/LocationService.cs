@@ -19,7 +19,7 @@ namespace Vamdrup_rundt.Services
         private bool _isListening;
         public double Longitude { get; set; }
         public double Latitude { get; set; }
-        Haversine haversine = new Haversine();
+
         public HashSet<LocationModel> currentLocation { get; set; } = new HashSet<LocationModel>();
         public event EventHandler LocationUpdated;
 
@@ -31,7 +31,7 @@ namespace Vamdrup_rundt.Services
                 Longitude = location.Longitude;
                 Latitude = location.Latitude;
                 Debug.WriteLine($"Location update received from platform service: {Latitude}, {Longitude}");
-                
+
                 Task.Run(async () => await GetGeocodeReverseData(Latitude, Longitude));
             }
         }
@@ -69,47 +69,36 @@ namespace Vamdrup_rundt.Services
                 _cancelTokenSource.Cancel();
         }
 
-        private async Task<string> GetGeocodeReverseData(double lat, double lon)
+        public async Task<string> GetGeocodeReverseData(double latitude, double longitude)
         {
             try
             {
-                var placemarks = await Geocoding.Default.GetPlacemarksAsync(lat, lon);
+                var placemarks = await Geocoding.Default.GetPlacemarksAsync(latitude, longitude);
                 var placemark = placemarks?.FirstOrDefault();
 
-                if (placemark == null || placemark.Location == null)
-                    return "no data";
-
-                var returned = placemark.Location;
-
-                double distMeters = haversine.ReverseGeocodeSnapChecker(
-                    lat, lon,
-                    returned.Latitude, returned.Longitude
-                );
-                Debug.WriteLine(distMeters);
-                if (distMeters > 15)
-                    return "no data";
-
-                var locationModel = new LocationModel(
-                    placemark.PostalCode?.ToString(),
-                    placemark.CountryCode,
-                    placemark.Thoroughfare
-                );
-
-                if (locationModel.FeatureName != "no data")
+                if (placemark != null)
                 {
+                    var locationModel = new LocationModel(
+                        placemark.PostalCode?.ToString(),
+                        placemark.CountryCode,
+                        placemark.Thoroughfare
+                    );
+
+
                     lock (currentLocation)
                     {
                         currentLocation.Add(locationModel);
                     }
-
                     LocationUpdated?.Invoke(this, EventArgs.Empty);
-                }
+                    Debug.WriteLine("✅ LocationUpdated event fired from service.");
 
-                return placemark.Thoroughfare ?? "unknown road";
+                    return $"{placemark.Locality}";
+                }
+                return "No placemarks found.";
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ReverseGeocodeWithHaversineAndNotify Exception: {ex.Message}");
+                Debug.WriteLine($"GetGeocodeReverseData Exception: {ex.Message}");
                 return $"Error: {ex.Message}";
             }
         }
@@ -125,12 +114,10 @@ namespace Vamdrup_rundt.Services
             _isListening = true;
            
 #else
-            // Original implementation for other platforms (e.g., iOS)
-            // You can keep your original async void method here if you prefer,
-            // but async Task is generally safer.
-            Task.Run(async () => 
+
+            Task.Run(async () =>
             {
-                 Debug.WriteLine("Attempting to start listening for location updates");
+                Debug.WriteLine("Attempting to start listening for location updates");
                 try
                 {
                     Geolocation.LocationChanged += Geolocation_LocationChanged;
@@ -175,7 +162,6 @@ namespace Vamdrup_rundt.Services
             _isListening = false;
             Debug.WriteLine("Requested to stop Android Location Service.");
 #else
-            // Original implementation for other platforms
             try
             {
                 Geolocation.LocationChanged -= Geolocation_LocationChanged;
